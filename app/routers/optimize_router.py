@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from app.db.database import SessionLocal
 from app.services.job_service import get_user_resume_sections
 from app.workflows.resume_optimizer_graph import resume_optimizer_graph, ResumeOptimizerState
-from app.db.models import Resume   # ← IMPORTANT: import Resume model
+from app.db.models import Resume
 
 router = APIRouter(prefix="/optimize", tags=["Optimize"])
 
@@ -16,13 +17,20 @@ def get_db():
         db.close()
 
 
+class OptimizeRequest(BaseModel):
+    user_id: str
+    job_description: str
+
+
 @router.post("/")
 def optimize_resume(
-    user_id: str,
-    job_description: str,
+    payload: OptimizeRequest,
     request: Request,
     db: Session = Depends(get_db),
 ):
+
+    user_id = payload.user_id
+    job_description = payload.job_description
 
     # Fetch parsed resume sections from DB
     sections = get_user_resume_sections(db, user_id)
@@ -34,20 +42,19 @@ def optimize_resume(
     if not resume_record:
         return {"error": "User resume record missing."}
 
-    # Experience locks (reserved for future use)
+    # Experience locks
     experience_locks = {}
 
-    # Structured education stays AS-IS (list of objects)
+    # Structured education stays AS-IS
     original_education_list = sections["education"]
 
-    # Build initial LangGraph state
+    # Build workflow state
     state = ResumeOptimizerState(
         resume_sections=sections,
         original_education=original_education_list,
         original_experience_positions=experience_locks,
         job_description=job_description,
 
-        # NEW FIELDS
         phone=resume_record.phone,
         full_name=resume_record.full_name,
         email=resume_record.email,
@@ -55,10 +62,8 @@ def optimize_resume(
         github=resume_record.github,
     )
 
-    # Run the optimization workflow
     final_state = resume_optimizer_graph.invoke(state)
 
-    # Build full URL for DOCX file
     base_url = str(request.base_url)
     full_url = f"{base_url}generated/{final_state['final_docx_path']}"
 
