@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+sqlalchemy
+psycopg2-binary
+pydantic
+python-docx
+langchain
+langgraph
+openai
+python-dotenv
+psycopg[binary]
+requests
+jinja2

@@ -1,43 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>AI Resume Optimizer</title>
-    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="popup.css" />
 </head>
+
 <body>
 
-    <h2>AI Resume Optimizer</h2>
+    <div id="container">
 
-    <!-- SECTION 1: UPLOAD RESUME (ONLY ONCE) -->
-    <div class="section">
-        <h3>1. Upload Resume</h3>
+        <!-- Upload Section -->
+        <div id="upload_section">
+            <h2>Upload Your Resume</h2>
 
-        <input type="text" id="full_name" placeholder="Full Name">
-        <input type="text" id="phone" placeholder="Phone Number">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="linkedin" placeholder="LinkedIn URL (optional)">
-        <input type="text" id="github" placeholder="GitHub URL (optional)">
+            <label>Full Name</label>
+            <input id="full_name" type="text" placeholder="John Doe" />
 
-        <input type="file" id="resume_file">
-        <button id="upload_btn">Upload Resume</button>
+            <label>Phone</label>
+            <input id="phone" type="text" placeholder="+1 555 555 5555" />
 
-        <p id="upload_status"></p>
-    </div>
+            <label>Email</label>
+            <input id="email" type="email" placeholder="john@example.com" />
 
-    <hr>
+            <label>LinkedIn (optional)</label>
+            <input id="linkedin" type="text" placeholder="https://linkedin.com/in/..." />
 
-    <!-- SECTION 2: OPTIMIZE RESUME -->
-    <div class="section">
-        <h3>2. Optimize for Job Description</h3>
+            <label>GitHub (optional)</label>
+            <input id="github" type="text" placeholder="https://github.com/..." />
 
-        <textarea id="job_description" placeholder="Paste job description here"></textarea>
+            <label>Resume (PDF or DOCX)</label>
+            <input id="resume_file" type="file" accept=".pdf,.doc,.docx" />
 
-        <button id="optimize_btn">Generate Optimized Resume</button>
+            <button id="upload_btn">Upload Resume</button>
+            <p id="upload_status" class="status"></p>
+        </div>
 
-        <p id="optimize_status"></p>
+        <!-- Separator -->
+        <hr />
+
+        <!-- Optimize Section -->
+        <div id="optimize_section">
+            <h2>Optimize for Job</h2>
+            <textarea id="job_description" placeholder="Paste job description here..."></textarea>
+
+            <button id="optimize_btn">Optimize Resume</button>
+            <p id="optimize_status" class="status"></p>
+        </div>
+
+        <!-- Reset -->
+        <div id="reset_section">
+            <button id="reset_btn" class="danger">Reset Everything</button>
+        </div>
+
     </div>
 
     <script src="popup.js"></script>
+
 </body>
 </html>

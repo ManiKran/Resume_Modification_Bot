@@ -1,61 +1,73 @@
 body {
-    width: 320px;
-    padding: 15px;
-    font-family: Arial, sans-serif;
-    background: #f8f9fa;
     margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    width: 350px;
+}
+
+#container {
+    padding: 16px;
 }
 
 h2 {
+    font-size: 16px;
     margin-top: 0;
-    font-size: 18px;
-    text-align: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
 }
 
-.section {
-    margin-bottom: 20px;
-}
-
-h3 {
-    font-size: 14px;
-    margin-bottom: 8px;
+label {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
     color: #333;
 }
 
-input, textarea, button {
-    width: 100%;
-    font-size: 14px;
-}
-
 input, textarea {
-    margin-bottom: 8px;
+    width: 100%;
     padding: 8px;
+    margin-top: 4px;
+    font-size: 13px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
 textarea {
     height: 100px;
-    resize: none;
+    resize: vertical;
 }
 
 button {
+    width: 100%;
+    margin-top: 12px;
     padding: 10px;
-    background: #0066ff;
-    color: white;
+    background-color: #1a73e8;
     border: none;
+    color: white;
+    font-size: 14px;
     border-radius: 4px;
     cursor: pointer;
-    font-weight: bold;
 }
 
 button:hover {
-    background: #0051cc;
+    background-color: #1669c1;
 }
 
-#upload_status,
-#optimize_status {
+button.danger {
+    background-color: #d9534f;
+}
+
+button.danger:hover {
+    background-color: #c9302c;
+}
+
+.status {
     font-size: 12px;
-    color: #444;
-    margin-top: 5px;
+    margin-top: 6px;
+}
+
+hr {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid #eee;
 }

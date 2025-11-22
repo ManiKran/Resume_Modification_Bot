@@ -1,7 +1,8 @@
 // ===============================
-// CONFIG — CHANGE THIS WHEN YOU DEPLOY BACKEND
+// CONFIG — CHANGE WHEN YOU DEPLOY
 // ===============================
-const API_BASE = "http://127.0.0.1:8000";   // local backend for now
+const API_BASE = "http://127.0.0.1:8000";   // local backend
+
 
 // ===============================
 // ELEMENTS
@@ -12,20 +13,51 @@ const optimizeBtn = document.getElementById("optimize_btn");
 const uploadStatus = document.getElementById("upload_status");
 const optimizeStatus = document.getElementById("optimize_status");
 
+const uploadSection = document.getElementById("upload_section");
+
+
 // ===============================
-// SAVE USER ID LOCALLY
+// STORAGE HELPERS
 // ===============================
 function saveUserId(userId) {
     chrome.storage.local.set({ user_id: userId });
 }
 
-async function getUserId() {
+function saveUserInfo(info) {
+    chrome.storage.local.set({ user_info: info });
+}
+
+async function getStoredUser() {
     return new Promise((resolve) => {
-        chrome.storage.local.get(["user_id"], (result) => {
-            resolve(result.user_id || null);
+        chrome.storage.local.get(["user_id", "user_info"], (result) => {
+            resolve({
+                user_id: result.user_id || null,
+                user_info: result.user_info || null
+            });
         });
     });
 }
+
+
+// ===============================
+// ON LOAD — AUTO POPULATE + HIDE
+// ===============================
+document.addEventListener("DOMContentLoaded", async () => {
+    const { user_id, user_info } = await getStoredUser();
+
+    if (user_info) {
+        document.getElementById("full_name").value = user_info.full_name || "";
+        document.getElementById("phone").value = user_info.phone || "";
+        document.getElementById("email").value = user_info.email || "";
+        document.getElementById("linkedin").value = user_info.linkedin || "";
+        document.getElementById("github").value = user_info.github || "";
+    }
+
+    if (user_id && user_info) {
+        uploadSection.style.display = "none";  // already set up
+    }
+});
+
 
 // ===============================
 // 1) UPLOAD RESUME + USER INFO
@@ -52,17 +84,14 @@ uploadBtn.addEventListener("click", async () => {
 
     const file = fileInput.files[0];
 
-    uploadStatus.textContent = "Uploading...";
-    uploadStatus.style.color = "black";
-
-    // Create a new user_id if not exists
-    let user_id = await getUserId();
+    // Create or get user_id
+    let { user_id } = await getStoredUser();
     if (!user_id) {
         user_id = crypto.randomUUID();
         saveUserId(user_id);
     }
 
-    // Build FormData
+    // FormData
     const formData = new FormData();
     formData.append("user_id", user_id);
     formData.append("full_name", full_name);
@@ -72,6 +101,9 @@ uploadBtn.addEventListener("click", async () => {
     formData.append("github", github);
     formData.append("file", file);
 
+    uploadStatus.textContent = "Uploading...";
+    uploadStatus.style.color = "black";
+
     try {
         const res = await fetch(`${API_BASE}/resume/upload`, {
             method: "POST",
@@ -80,21 +112,34 @@ uploadBtn.addEventListener("click", async () => {
 
         const data = await res.json();
 
-        if (data.error) {
-            uploadStatus.textContent = "Error: " + data.error;
+        if (!res.ok || data.error) {
+            uploadStatus.textContent = "Error: " + (data.error || "Upload failed");
             uploadStatus.style.color = "red";
             return;
         }
 
+        // Save user info locally after successful upload
+        saveUserInfo({
+            full_name,
+            phone,
+            email,
+            linkedin,
+            github,
+        });
+
         uploadStatus.textContent = "Resume uploaded successfully!";
         uploadStatus.style.color = "green";
 
+        // Hide upload section
+        uploadSection.style.display = "none";
+
     } catch (err) {
+        console.error(err);
         uploadStatus.textContent = "Upload failed.";
         uploadStatus.style.color = "red";
-        console.error(err);
     }
 });
+
 
 // ===============================
 // 2) OPTIMIZE FOR JOB DESCRIPTION
@@ -108,7 +153,7 @@ optimizeBtn.addEventListener("click", async () => {
         return;
     }
 
-    let user_id = await getUserId();
+    const { user_id } = await getStoredUser();
     if (!user_id) {
         optimizeStatus.textContent = "Please upload your resume first!";
         optimizeStatus.style.color = "red";
@@ -119,33 +164,32 @@ optimizeBtn.addEventListener("click", async () => {
     optimizeStatus.style.color = "black";
 
     try {
-        const res = await fetch(`${API_BASE}/optimize`, {
+        const res = await fetch(`${API_BASE}/optimize/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: user_id,
-                job_description: job_description,
+                user_id,
+                job_description,
             }),
         });
 
         const data = await res.json();
 
-        if (data.error) {
-            optimizeStatus.textContent = "Error: " + data.error;
+        if (!res.ok || data.error) {
+            optimizeStatus.textContent = "Error: " + (data.error || "Optimization failed");
             optimizeStatus.style.color = "red";
             return;
         }
 
-        // Trigger file download
-        const url = data.file_url;
-        chrome.downloads.download({ url });
+        // Download the optimized resume
+        chrome.downloads.download({ url: data.file_url });
 
         optimizeStatus.textContent = "Optimized resume downloaded!";
         optimizeStatus.style.color = "green";
 
     } catch (err) {
+        console.error(err);
         optimizeStatus.textContent = "Optimization failed.";
         optimizeStatus.style.color = "red";
-        console.error(err);
     }
 });
