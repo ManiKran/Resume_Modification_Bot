@@ -4,14 +4,15 @@
   "description": "Optimize your resume for any job description using AI.",
   "version": "1.0.0",
 
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+
   "action": {
     "default_popup": "popup.html",
-    "default_title": "AI Resume Optimizer",
-    "default_icon": {
-      "16": "assets/icon16.png",
-      "48": "assets/icon48.png",
-      "128": "assets/icon128.png"
-    }
+    "default_title": "AI Resume Optimizer"
   },
 
   "permissions": [
