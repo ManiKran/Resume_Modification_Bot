@@ -1,7 +1,7 @@
 // ===============================
 // CONFIG — CHANGE WHEN YOU DEPLOY
 // ===============================
-const API_BASE = "https://resumemodificationbot-production.up.railway.app";   // local backend
+const API_BASE = "https://resumemodificationbot-production.up.railway.app/";   // local backend
 
 
 // ===============================
@@ -105,7 +105,7 @@ uploadBtn.addEventListener("click", async () => {
     uploadStatus.style.color = "black";
 
     try {
-        const res = await fetch(`${API_BASE}/resume/upload`, {
+        const res = await fetch(`${API_BASE}/resume/upload/`, {
             method: "POST",
             body: formData,
         });
@@ -164,7 +164,7 @@ optimizeBtn.addEventListener("click", async () => {
     optimizeStatus.style.color = "black";
 
     try {
-        const res = await fetch(`${API_BASE}/optimize`, {
+        const res = await fetch(`${API_BASE}/optimize/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

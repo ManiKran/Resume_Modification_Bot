@@ -20,7 +20,7 @@ def get_db():
         db.close()
 
 
-@router.post("/upload")
+@router.post("/upload/")
 async def upload_resume(user_id: str = Form(...),
     phone: str = Form(...),
     full_name: str = Form(...),
