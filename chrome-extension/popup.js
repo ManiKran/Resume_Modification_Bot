@@ -164,7 +164,7 @@ optimizeBtn.addEventListener("click", async () => {
     optimizeStatus.style.color = "black";
 
     try {
-        const res = await fetch(`${API_BASE}/optimize/`, {
+        const res = await fetch(`${API_BASE}/optimize`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
