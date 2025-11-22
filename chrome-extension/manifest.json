@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "AI Resume Optimizer",
+  "description": "Optimize your resume for any job description using AI.",
+  "version": "1.0.0",
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Resume Optimizer",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    }
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+
+  "host_permissions": [
+    "*://localhost/*",
+    "*://127.0.0.1/*",
+    "*://your-deployed-domain.com/*"
+  ]
+}
