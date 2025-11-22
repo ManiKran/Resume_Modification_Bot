@@ -1,7 +1,7 @@
 // ===============================
 // CONFIG — CHANGE WHEN YOU DEPLOY
 // ===============================
-const API_BASE = "http://127.0.0.1:8000";   // local backend
+const API_BASE = "https://resumemodificationbot-production.up.railway.app/";   // local backend
 
 
 // ===============================
