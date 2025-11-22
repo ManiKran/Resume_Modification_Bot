@@ -1,7 +1,7 @@
 // ===============================
 // CONFIG — CHANGE WHEN YOU DEPLOY
 // ===============================
-const API_BASE = "https://resumemodificationbot-production.up.railway.app/";   // local backend
+const API_BASE = "https://resumemodificationbot-production.up.railway.app";   // local backend
 
 
 // ===============================
