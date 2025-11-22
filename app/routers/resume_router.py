@@ -7,6 +7,7 @@ from app.utils.file_utils import extract_text
 from app.llm.extract_sections import extract_resume_sections
 from app.services.resume_service import save_resume
 from app.db import models
+from fastapi import APIRouter, UploadFile, File, Depends, Form
 
 router = APIRouter(prefix="/resume", tags=["Resume"])
 
@@ -20,12 +21,12 @@ def get_db():
 
 
 @router.post("/upload")
-async def upload_resume(user_id: str,
-    phone: str,
-    full_name: str,
-    email: str,
-    linkedin: str = "",
-    github: str = "",
+async def upload_resume(user_id: str = Form(...),
+    phone: str = Form(...),
+    full_name: str = Form(...),
+    email: str = Form(...),
+    linkedin: str = Form(""),
+    github: str = Form(""),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)):
     # Save file temporarily
