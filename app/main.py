@@ -24,7 +24,7 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "chrome-extension://jlkkglkngkggobainneppchmdkfeklod",
+        "chrome-extension://mgbpoaobnhfajkaemeaalinanaecdpmi",
         "https://resumemodificationbot-production.up.railway.app",
         "http://resumemodificationbot-production.up.railway.app",   # HTTP fallback
     ],
