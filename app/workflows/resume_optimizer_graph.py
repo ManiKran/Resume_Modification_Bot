@@ -1,3 +1,4 @@
+import logging
 from langgraph.graph import StateGraph
 from .state import ResumeOptimizerState
 from app.services.llm_optimizer import tailor_resume
@@ -7,24 +8,25 @@ from app.services.docx_generator import generate_final_docx
 import os
 import uuid
 
+# ---------------------------------------------------
+# ENABLE LOGGING
+# ---------------------------------------------------
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("optimizer")
 
-# -----------------------------------------
-# CONFIG
-# -----------------------------------------
+
 ATS_THRESHOLD = 95
 MAX_LOOPS = 1
 
 
-# -----------------------------------------
+# ---------------------------------------------------
 # NODES
-# -----------------------------------------
+# ---------------------------------------------------
 
 def node_tailor(state: ResumeOptimizerState):
-    """
-    First LLM pass:
-    - Tailors SUMMARY, EXPERIENCE bullets, SKILLS
-    - MUST NOT modify EDUCATION
-    """
+    log.info("=== NODE: TAILOR ===")
+    log.info("Original sections:\n%s", state.resume_sections)
+
     tailored = tailor_resume(
         state.resume_sections,
         state.job_description,
@@ -35,42 +37,47 @@ def node_tailor(state: ResumeOptimizerState):
     state.resume_sections["experience"] = tailored["experience"]
     state.resume_sections["skills"] = tailored["skills"]
 
-    # Preserve education exactly (list of objects)
     state.resume_sections["education"] = state.original_education
+
+    log.info("Tailored summary:\n%s", state.resume_sections["summary"])
+    log.info("Tailored skills:\n%s", state.resume_sections["skills"])
 
     return state
 
 
 def node_ats(state: ResumeOptimizerState):
-    """
-    ATS Scoring Step
-    """
+    log.info("=== NODE: ATS SCORE ===")
     result = ats_score(state.resume_sections, state.job_description)
+
     state.ats_score = result["score"]
     state.analysis = result["analysis"]
+
+    log.info("ATS Score: %s", state.ats_score)
+    log.info("ATS Analysis: %s", state.analysis)
+
     return state
 
 
 def check_score(state: ResumeOptimizerState):
-    """
-    Decide the next node:
-    - PASS → GENERATE
-    - STOP → GENERATE (max attempts reached)
-    - IMPROVE → run improve node again
-    """
+    log.info("=== CHECK SCORE ===")
+    log.info(f"Current Score = {state.ats_score}, Threshold = {ATS_THRESHOLD}, Iteration = {state.iteration_count}")
+
     if state.ats_score >= ATS_THRESHOLD:
+        log.info("Decision: PASS (threshold met)")
         return "PASS"
+
     if state.iteration_count >= MAX_LOOPS:
+        log.info("Decision: STOP (max loops reached)")
         return "STOP"
+
+    log.info("Decision: IMPROVE (score too low, more loops allowed)")
     return "IMPROVE"
 
 
 def node_improve(state: ResumeOptimizerState):
-    """
-    Improvement loop:
-    - Modifies summary, experience bullets, skills
-    - Education stays unchanged
-    """
+    log.info("=== NODE: IMPROVE ===")
+    log.info("Applying ATS analysis improvements...")
+
     improved = improve_resume(
         state.resume_sections,
         state.analysis,
@@ -81,32 +88,29 @@ def node_improve(state: ResumeOptimizerState):
     state.resume_sections["summary"] = improved["summary"]
     state.resume_sections["experience"] = improved["experience"]
     state.resume_sections["skills"] = improved["skills"]
-
-    # preserve education
     state.resume_sections["education"] = state.original_education
 
     state.iteration_count += 1
+
+    log.info(f"New iteration count: {state.iteration_count}")
+    log.info("Improved summary:\n%s", state.resume_sections["summary"])
+    log.info("Improved skills:\n%s", state.resume_sections["skills"])
+
     return state
 
 
 def node_generate(state: ResumeOptimizerState):
-    """
-    Final step.
-    Generates DOCX using user info + tailored sections.
-    """
-    import os
-    import uuid
-    from app.services.docx_generator import generate_final_docx
+    log.info("=== NODE: GENERATE DOCX ===")
+    log.info("Final score = %s, Passed = %s", state.ats_score, state.passed)
 
     os.makedirs("generated", exist_ok=True)
 
     unique_filename = f"final_resume_{uuid.uuid4()}.docx"
     output_path = f"generated/{unique_filename}"
 
-    # Build user info block for DOCX header
     user_info = {
         "full_name": state.full_name,
-        "phone":state.phone,
+        "phone": state.phone,
         "email": state.email,
         "linkedin": state.linkedin,
         "github": state.github,
@@ -120,12 +124,15 @@ def node_generate(state: ResumeOptimizerState):
 
     state.final_docx_path = unique_filename
     state.passed = True
+
+    log.info(f"Generated resume at: {output_path}")
+
     return state
 
 
-# -----------------------------------------
+# ---------------------------------------------------
 # BUILD THE GRAPH
-# -----------------------------------------
+# ---------------------------------------------------
 
 builder = StateGraph(ResumeOptimizerState)
 
