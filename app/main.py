@@ -12,7 +12,7 @@ app = FastAPI(title="Resume AI Backend")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "chrome-extension://fgdjdccbdhnmniafodedgabomedoljoo",
+        "chrome-extension://mgbpoaobnhfajkaemeaalinanaecdpmi",
         "https://resumemodificationbot-production.up.railway.app",
         "http://resumemodificationbot-production.up.railway.app",
     ],
