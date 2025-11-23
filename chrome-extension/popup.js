@@ -181,7 +181,14 @@ optimizeBtn.addEventListener("click", async () => {
             return;
         }
 
-        // Download the optimized resume
+        // ⭐ Display ATS score ⭐
+        const atsDiv = document.getElementById("ats_result");
+        const atsValue = document.getElementById("ats_score_value");
+
+        atsValue.textContent = `${data.ats_score} / 100`;
+        atsDiv.style.display = "block";
+
+        // Download optimized resume
         chrome.downloads.download({ url: data.file_url });
 
         optimizeStatus.textContent = "Optimized resume downloaded!";
