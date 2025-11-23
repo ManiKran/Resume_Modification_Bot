@@ -20,9 +20,9 @@ ALLOWED CHANGES:
 - EDUCATION → do NOT modify.
 
 HARD CONSTRAINTS FOR EXPERIENCE BULLETS:
-- The FIRST experience must contain **exactly 7 bullet points**.
-- The SECOND experience must contain **exactly 5 bullet points**.
-- The THIRD experience must contain **exactly 4 bullet points**.
+- The FIRST experience must contain **exactly 8 bullet points**.
+- The SECOND experience must contain **exactly 6 bullet points**.
+- The THIRD experience must contain **exactly 5 bullet points**.
 - If the resume has fewer experiences, follow the rule only for available ones.
 - If it has more than 3 experiences, only enforce this rule for the first 3; leave the rest unchanged.
 - All bullets must be rewritten to align with the job description while staying truthful.

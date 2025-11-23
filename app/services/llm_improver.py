@@ -43,9 +43,9 @@ You MUST return valid JSON ONLY in this exact structure:
 ==============================
 BULLET COUNT RULES
 ==============================
-- Experience #1 → EXACTLY **7** bullets.
-- Experience #2 → EXACTLY **5** bullets.
-- Experience #3 → EXACTLY **4** bullets.
+- Experience #1 → EXACTLY **8** bullets.
+- Experience #2 → EXACTLY **6** bullets.
+- Experience #3 → EXACTLY **5** bullets.
 - If resume has fewer jobs, apply rule only to existing ones.
 
 ==============================
