@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("optimizer")
 
 
-ATS_THRESHOLD = 95
+ATS_THRESHOLD = 98
 MAX_LOOPS = 1
 
 
