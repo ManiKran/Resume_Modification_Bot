@@ -12,4 +12,5 @@ python-dotenv
 psycopg[binary]
 requests
 jinja2
-pdfplumber         
+pdfplumber     
+starlette    
