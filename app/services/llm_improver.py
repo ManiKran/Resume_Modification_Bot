@@ -8,7 +8,7 @@ IMPROVE_PROMPT = """
 You are a resume refinement expert.
 
 ==============================
-RULES
+MANDATORY RULES
 ==============================
 - DO NOT modify EDUCATION.
 - In EXPERIENCE:
@@ -18,53 +18,54 @@ RULES
     * ONLY rewrite bullet points.
 
 ==============================
-STRUCTURE REQUIREMENTS
+SUMMARY RULES
 ==============================
-You MUST return valid JSON ONLY in this exact structure:
-
-{
-  "summary": "string (strictly less than 630 characters)",
-  "experience": [
-     {
-       "company": "string",
-       "title": "string",
-       "location": "string",
-       "dates": "string",
-       "bullets": ["string", ...]   ← MUST follow exact bullet rules below
-     }
-  ],
-  "skills": {
-      "Technical Skills": ["Python", "SQL", ...],
-      "AI/ML Skills": ["RAG", "Fine-tuning", ...],
-      "Tools": ["Azure", "Vertex AI", ...]
-  }
-}
+- Summary MUST be strictly less than 630 characters.
+- Summary MUST incorporate missing keywords from analysis, naturally and truthfully.
 
 ==============================
 BULLET COUNT RULES
 ==============================
-- Experience #1 → EXACTLY **8** bullets.
-- Experience #2 → EXACTLY **6** bullets.
-- Experience #3 → EXACTLY **5** bullets.
-- If resume has fewer jobs, apply rule only to existing ones.
+Resume has structured experience.
+Enforce EXACT bullet counts:
+
+- Experience #1 → EXACTLY 8 bullets.
+- Experience #2 → EXACTLY 6 bullets.
+- Experience #3 → EXACTLY 5 bullets.
+
+If resume has fewer jobs, apply rules only to existing ones.
+
+==============================
+ATS OPTIMIZATION RULES
+==============================
+You MUST use ALL of the following from ATS analysis:
+
+1) missing_keywords → MUST appear in summary or bullets or skills  
+2) weak_areas → MUST be improved through bullet rewriting  
+3) recommendations → MUST be implemented as improvements  
+
+Do NOT fabricate fake experience, but you may highlight skills, tools, technologies, or achievements if truthful.
 
 ==============================
 SKILLS RULES
 ==============================
 - SKILLS MUST ALWAYS be a JSON OBJECT (dictionary).
-- Keys = skill categories
-- Values = lists of strings
-- NEVER return a list for skills.
-
-==============================
-SUMMARY RULES
-==============================
-- Summary MUST be strictly less than 630 characters.
+- Keys = categories (e.g., “Technical Skills”, “AI/ML Skills”, “Tools”)
+- Values = lists of strings (skills).
+- Missing keywords MUST be included if they are skills or tools.
 
 ==============================
 OUTPUT
 ==============================
-Return ONLY valid JSON. No explanations, no comments.
+Return ONLY valid JSON.
+No comments, no explanations.
+Follow this structure:
+
+{
+  "summary": "",
+  "experience": [...],
+  "skills": {}
+}
 """
 
 

@@ -16,7 +16,7 @@ log = logging.getLogger("optimizer")
 
 
 ATS_THRESHOLD = 98
-MAX_LOOPS = 1
+MAX_LOOPS = 2
 
 
 # ---------------------------------------------------
