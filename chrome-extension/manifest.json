@@ -17,13 +17,14 @@
 
   "permissions": [
     "storage",
+    "downloads",
     "activeTab",
     "scripting"
   ],
 
   "host_permissions": [
-    "*://localhost/*",
-    "*://127.0.0.1/*",
-    "https://resumemodificationbot-production.up.railway.app/*"
+    "https://resumemodificationbot-production.up.railway.app/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ]
 }
