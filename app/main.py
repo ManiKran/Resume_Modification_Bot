@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10,30 +9,51 @@ from app.routers.optimize_router import router as optimize_router
 
 app = FastAPI(title="Resume AI Backend")
 
-# 🚀 Fix HTTPS redirect issues behind Railway
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+# ----------------------------------------------------------
+# 🚀 1. REQUIRED ON RAILWAY: Fix HTTPS → HTTP redirect issues
+# ----------------------------------------------------------
+# Ensures FastAPI trusts X-Forwarded-For / X-Forwarded-Proto headers
+app.add_middleware(
+    ProxyHeadersMiddleware,
+    trusted_hosts="*"
+)
 
-# 🚀 CORS for Chrome Extension + Railway
+# ----------------------------------------------------------
+# 🚀 2. CORS SETTINGS (EXTENSION + RAILWAY http/https)
+# ----------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "chrome-extension://jlkkglkngkggobainneppchmdkfeklod"   # your REAL extension ID
+        "chrome-extension://jlkkglkngkggobainneppchmdkfeklod",
+        "https://resumemodificationbot-production.up.railway.app",
+        "http://resumemodificationbot-production.up.railway.app",   # HTTP fallback
     ],
-    allow_origin_regex=r"https://.*\.railway\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ----------------------------------------------------------
+# 🚀 3. Database startup
+# ----------------------------------------------------------
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
 
+# ----------------------------------------------------------
+# 🚀 4. Routers
+# ----------------------------------------------------------
 app.include_router(resume_router)
 app.include_router(optimize_router)
 
+# ----------------------------------------------------------
+# 🚀 5. Root endpoint
+# ----------------------------------------------------------
 @app.get("/")
 def root():
     return {"message": "Resume AI Backend is running!"}
 
+# ----------------------------------------------------------
+# 🚀 6. Serve generated DOCX files
+# ----------------------------------------------------------
 app.mount("/generated", StaticFiles(directory="generated"), name="generated")
