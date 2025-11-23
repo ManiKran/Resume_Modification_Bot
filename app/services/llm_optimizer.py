@@ -6,29 +6,39 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 TAILOR_PROMPT = """
 You are a resume tailoring expert.
 
-You will receive:
+INPUT YOU RECEIVE:
 - Original SUMMARY, EXPERIENCE, SKILLS
-- DO NOT modify EDUCATION.
-- In EXPERIENCE:
-    * DO NOT modify job titles.
-    * DO NOT modify company names.
-    * DO NOT modify dates.
-    * Only rewrite bullet points to match job description.
-- IN SUMMARY and SKILLS:
-    * You may rewrite fully to match the job description.
-- Keep content truthful. No hallucinations.
+- Job Description
+- Protected experience fields: 
+    * DO NOT change job titles, company names, locations, or dates.
+    * Only rewrite bullet points.
 
-Your output MUST be valid JSON with the following structure:
+ALLOWED CHANGES:
+- SUMMARY → you may fully rewrite, but it MUST be strictly under **630 characters**.
+- EXPERIENCE → only rewrite bullet points.
+- SKILLS → rewrite freely to fit the job description.
+- EDUCATION → do NOT modify.
+
+HARD CONSTRAINTS FOR EXPERIENCE BULLETS:
+- The FIRST experience must contain **exactly 7 bullet points**.
+- The SECOND experience must contain **exactly 5 bullet points**.
+- The THIRD experience must contain **exactly 4 bullet points**.
+- If the resume has fewer experiences, follow the rule only for available ones.
+- If it has more than 3 experiences, only enforce this rule for the first 3; leave the rest unchanged.
+- All bullets must be rewritten to align with the job description while staying truthful.
+
+JSON OUTPUT RULES:
+You MUST return valid JSON ONLY in the following structure:
 
 {
-  "summary": "string",
+  "summary": "<string less than 630 characters>",
   "experience": [
      {
        "company": "string",
        "title": "string",
        "location": "string",
        "dates": "string",
-       "bullets": ["string", ...]
+       "bullets": ["string", ...]   // must match bullet count rules
      }
   ],
   "skills": {
@@ -38,10 +48,10 @@ Your output MUST be valid JSON with the following structure:
   }
 }
 
-RULES FOR SKILLS:
-- Skills MUST be a dictionary.
-- Keys = categories.
-- Values = lists of skills.
+ADDITIONAL RULES:
+- Output MUST be valid JSON with no comments.
+- Escape all internal quotes using \\" inside JSON strings.
+- Absolutely no text outside the JSON object.
 """
 
 def tailor_resume(original_sections, job_description, experience_locks):
