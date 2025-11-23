@@ -20,7 +20,7 @@ MANDATORY RULES
 ==============================
 SUMMARY RULES
 ==============================
-- Summary MUST be strictly less than 630 characters.
+- Summary MUST be strictly less than 700 characters.
 - Summary MUST incorporate missing keywords from analysis, naturally and truthfully.
 
 ==============================

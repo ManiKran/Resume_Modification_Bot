@@ -14,7 +14,7 @@ INPUT YOU RECEIVE:
     * Only rewrite bullet points.
 
 ALLOWED CHANGES:
-- SUMMARY → you may fully rewrite, but it MUST be strictly under **630 characters**.
+- SUMMARY → you may fully rewrite, but it MUST be strictly under **700 characters**.
 - EXPERIENCE → only rewrite bullet points.
 - SKILLS → rewrite freely to fit the job description.
 - EDUCATION → do NOT modify.
