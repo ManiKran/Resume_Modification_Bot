@@ -1,7 +1,7 @@
 // ===============================
 // CONFIG — CHANGE WHEN YOU DEPLOY
 // ===============================
-const API_BASE = "https://resumemodificationbot-production.up.railway.app";   // local backend
+const API_BASE = "https://resumemodificationbot-production.up.railway.app";
 
 
 // ===============================
@@ -9,11 +9,15 @@ const API_BASE = "https://resumemodificationbot-production.up.railway.app";   //
 // ===============================
 const uploadBtn = document.getElementById("upload_btn");
 const optimizeBtn = document.getElementById("optimize_btn");
+const resetBtn = document.getElementById("reset_btn");
 
 const uploadStatus = document.getElementById("upload_status");
 const optimizeStatus = document.getElementById("optimize_status");
 
 const uploadSection = document.getElementById("upload_section");
+
+const atsDiv = document.getElementById("ats_result");
+const atsValue = document.getElementById("ats_score_value");
 
 
 // ===============================
@@ -54,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (user_id && user_info) {
-        uploadSection.style.display = "none";  // already set up
+        uploadSection.style.display = "none";
     }
 });
 
@@ -118,7 +122,7 @@ uploadBtn.addEventListener("click", async () => {
             return;
         }
 
-        // Save user info locally after successful upload
+        // Save locally
         saveUserInfo({
             full_name,
             phone,
@@ -130,7 +134,6 @@ uploadBtn.addEventListener("click", async () => {
         uploadStatus.textContent = "Resume uploaded successfully!";
         uploadStatus.style.color = "green";
 
-        // Hide upload section
         uploadSection.style.display = "none";
 
     } catch (err) {
@@ -163,6 +166,10 @@ optimizeBtn.addEventListener("click", async () => {
     optimizeStatus.textContent = "Optimizing resume...";
     optimizeStatus.style.color = "black";
 
+    // Clear old ATS score
+    atsDiv.style.display = "none";
+    atsValue.textContent = "";
+
     try {
         const res = await fetch(`${API_BASE}/optimize`, {
             method: "POST",
@@ -181,10 +188,7 @@ optimizeBtn.addEventListener("click", async () => {
             return;
         }
 
-        // ⭐ Display ATS score ⭐
-        const atsDiv = document.getElementById("ats_result");
-        const atsValue = document.getElementById("ats_score_value");
-
+        // ⭐ Show ATS Score ⭐
         atsValue.textContent = `${data.ats_score} / 100`;
         atsDiv.style.display = "block";
 
@@ -199,4 +203,14 @@ optimizeBtn.addEventListener("click", async () => {
         optimizeStatus.textContent = "Optimization failed.";
         optimizeStatus.style.color = "red";
     }
+});
+
+
+// ===============================
+// RESET BUTTON — CLEAR EVERYTHING
+// ===============================
+resetBtn.addEventListener("click", () => {
+    chrome.storage.local.clear(() => {
+        location.reload();
+    });
 });
