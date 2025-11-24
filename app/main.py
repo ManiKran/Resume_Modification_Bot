@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from app.db.database import Base, engine
 from app.routers.resume_router import router as resume_router
 from app.routers.optimize_router import router as optimize_router
+import os
 
 app = FastAPI(title="Resume AI Backend")
 
@@ -24,6 +25,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
+    os.makedirs("generated", exist_ok=True)
 
 app.include_router(resume_router)
 app.include_router(optimize_router)
