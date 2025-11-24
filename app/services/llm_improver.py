@@ -20,7 +20,7 @@ MANDATORY RULES
 ==============================
 SUMMARY RULES
 ==============================
-- Summary MUST be strictly less than 700 characters.
+- Summary MUST be strictly less than 800 characters.
 - Summary MUST incorporate missing keywords from analysis, naturally and truthfully.
 
 ==============================
@@ -30,7 +30,7 @@ Resume has structured experience.
 Enforce EXACT bullet counts:
 
 - Experience #1 → EXACTLY 8 bullets.
-- Experience #2 → EXACTLY 6 bullets.
+- Experience #2 → EXACTLY 8 bullets.
 - Experience #3 → EXACTLY 5 bullets.
 
 If resume has fewer jobs, apply rules only to existing ones.
@@ -114,7 +114,7 @@ def ensure_skills_dict(skills):
 
 def enforce_bullet_rules(experience):
     """Fix bullet counts to match (7, 5, 4)."""
-    required = [7, 5, 4]
+    required = [8, 8, 5]
 
     for i, job in enumerate(experience):
         if i >= len(required):
@@ -135,10 +135,10 @@ def enforce_bullet_rules(experience):
 
 
 def enforce_summary_length(summary):
-    """Ensure summary is < 630 chars."""
-    if len(summary) <= 630:
+    """Ensure summary is < 800 chars."""
+    if len(summary) <= 800:
         return summary
-    return summary[:627] + "..."
+    return summary[:797] + "..."
 
 
 def improve_resume(sections, analysis, jd, experience_locks):

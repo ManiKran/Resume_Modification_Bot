@@ -14,14 +14,14 @@ INPUT YOU RECEIVE:
     * Only rewrite bullet points.
 
 ALLOWED CHANGES:
-- SUMMARY → you may fully rewrite, but it MUST be strictly under **700 characters**.
+- SUMMARY → you may fully rewrite, but it MUST be strictly under **800 characters**.
 - EXPERIENCE → only rewrite bullet points.
 - SKILLS → rewrite freely to fit the job description.
 - EDUCATION → do NOT modify.
 
 HARD CONSTRAINTS FOR EXPERIENCE BULLETS:
 - The FIRST experience must contain **exactly 8 bullet points**.
-- The SECOND experience must contain **exactly 6 bullet points**.
+- The SECOND experience must contain **exactly 8 bullet points**.
 - The THIRD experience must contain **exactly 5 bullet points**.
 - If the resume has fewer experiences, follow the rule only for available ones.
 - If it has more than 3 experiences, only enforce this rule for the first 3; leave the rest unchanged.
@@ -31,7 +31,7 @@ JSON OUTPUT RULES:
 You MUST return valid JSON ONLY in the following structure:
 
 {
-  "summary": "<string less than 630 characters>",
+  "summary": "<string less than 800 characters>",
   "experience": [
      {
        "company": "string",
