@@ -9,7 +9,14 @@ import os
 
 app = FastAPI(title="Resume AI Backend")
 
+# -----------------------------------
+# 🚀 CREATE FOLDER BEFORE MOUNTING
+# -----------------------------------
+os.makedirs("generated", exist_ok=True)
+
+# -----------------------------------
 # 🚀 CORS for Chrome Extension & Railway
+# -----------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,16 +29,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# -----------------------------------
+# DB INIT
+# -----------------------------------
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
-    os.makedirs("generated", exist_ok=True)
 
+# -----------------------------------
+# ROUTERS
+# -----------------------------------
 app.include_router(resume_router)
 app.include_router(optimize_router)
 
+# -----------------------------------
+# STATIC FILES
+# -----------------------------------
+app.mount("/generated", StaticFiles(directory="generated"), name="generated")
+
+# -----------------------------------
+# ROOT
+# -----------------------------------
 @app.get("/")
 def root():
     return {"message": "Resume AI Backend is running!"}
-
-app.mount("/generated", StaticFiles(directory="generated"), name="generated")
