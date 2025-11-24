@@ -29,9 +29,9 @@ BULLET COUNT RULES
 Resume has structured experience.
 Enforce EXACT bullet counts:
 
-- Experience #1 → EXACTLY 8 bullets.
-- Experience #2 → EXACTLY 8 bullets.
-- Experience #3 → EXACTLY 5 bullets.
+- Experience #1 → EXACTLY 9 bullets.
+- Experience #2 → EXACTLY 9 bullets.
+- Experience #3 → EXACTLY 6 bullets.
 
 If resume has fewer jobs, apply rules only to existing ones.
 
@@ -114,7 +114,7 @@ def ensure_skills_dict(skills):
 
 def enforce_bullet_rules(experience):
     """Fix bullet counts to match (7, 5, 4)."""
-    required = [8, 8, 5]
+    required = [9, 9, 6]
 
     for i, job in enumerate(experience):
         if i >= len(required):
