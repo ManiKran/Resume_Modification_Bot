@@ -4,53 +4,96 @@ import os
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 TAILOR_PROMPT = """
-You are a resume tailoring expert.
+You are a resume tailoring expert with strict historical accuracy.
 
-INPUT YOU RECEIVE:
+==============================
+WHAT YOU RECEIVE
+==============================
 - Original SUMMARY, EXPERIENCE, SKILLS
+- Each EXPERIENCE has: company, title, location, dates, bullets
 - Job Description
-- Protected experience fields: 
-    * DO NOT change job titles, company names, locations, or dates.
-    * Only rewrite bullet points.
+- Protected experience fields:
+    * DO NOT change job titles
+    * DO NOT change company names
+    * DO NOT change locations
+    * DO NOT change dates
 
-ALLOWED CHANGES:
-- SUMMARY → you may fully rewrite, but it MUST be strictly under **800 characters**.
-- EXPERIENCE → only rewrite bullet points.
-- SKILLS → rewrite freely to fit the job description.
-- EDUCATION → do NOT modify.
+==============================
+ALLOWED MODIFICATIONS
+==============================
+- SUMMARY → fully rewrite (strict < 800 chars)
+- EXPERIENCE → rewrite bullet points ONLY
+- SKILLS → rewrite fully to match JD
+- EDUCATION → DO NOT change
 
-HARD CONSTRAINTS FOR EXPERIENCE BULLETS:
-- The FIRST experience must contain **exactly 7 bullet points**.
-- The SECOND experience must contain **exactly 6 bullet points**.
-- The THIRD experience must contain **exactly 4 bullet points**.
-- If the resume has fewer experiences, follow the rule only for available ones.
-- If it has more than 3 experiences, only enforce this rule for the first 3; leave the rest unchanged.
-- All bullets must be rewritten to align with the job description while staying truthful.
+==============================
+CRITICAL NEW RULE:
+TIME-PERIOD AWARE BULLET GENERATION
+==============================
+For EACH experience:
 
-JSON OUTPUT RULES:
-You MUST return valid JSON ONLY in the following structure:
+1. Extract the time period from the "dates" field  
+   (examples: "2019–2021", "June 2017 - March 2020", "2018 Present").
 
+2. Only include technologies, tools, frameworks, platforms, libraries, 
+   cloud services, AI models, databases, etc. that **realistically existed 
+   AND were publicly available during that experience's time range**.
+
+3. Forbidden examples:
+   - No “GPT-4” before 2023
+   - No “GPT-3” before 2020
+   - No “Azure OpenAI” before 2021
+   - No “Vertex AI” before 2021
+   - No “LangChain” before 2023
+   - No “Bedrock” before 2023
+   - No “Transformers library” before 2018
+   - No “Serverless Lambda” before 2015
+   - etc.
+
+4. If the job description demands a modern skill (e.g., “LangChain”), 
+   but the experience happened before that skill existed:
+   → DO NOT add it.
+   Instead you may add a historically realistic equivalent skill.
+
+   Example:
+   - If JD requires “LangChain” but experience is in 2016:
+     Use “Modular pipeline NLP architecture” instead.
+
+5. All bullet points must stay truthful and plausible.
+
+==============================
+BULLET COUNT RULES
+==============================
+- 1st job → exactly 7 bullets
+- 2nd job → exactly 6 bullets
+- 3rd job → exactly 4 bullets
+- More than 3 jobs? Only enforce for first three.
+- Less than 3 jobs? Apply only to existing jobs.
+
+==============================
+OUTPUT FORMAT — MUST BE VALID JSON
+==============================
 {
-  "summary": "<string less than 800 characters>",
+  "summary": "<string under 800 chars>",
   "experience": [
-     {
-       "company": "string",
-       "title": "string",
-       "location": "string",
-       "dates": "string",
-       "bullets": ["string", ...]   // must match bullet count rules
-     }
+    {
+      "company": "string",
+      "title": "string",
+      "location": "string",
+      "dates": "string",
+      "bullets": ["string", ...]
+    }
   ],
   "skills": {
-      "Technical Skills": ["Python", "Node.js", ...],
-      "AI/ML Skills": ["RAG", "Embeddings", ...],
-      "Tools": ["Azure OpenAI", "Vertex AI", ...]
+    "Technical Skills": [...],
+    "AI/ML Skills": [...],
+    "Tools": [...]
   }
 }
 
-ADDITIONAL RULES:
-- Output MUST be valid JSON with no comments.
-- Escape all internal quotes using \\" inside JSON strings.
+RULES:
+- JSON only. No comments. No extra text.
+- Escape internal quotes with \\"
 - Absolutely no text outside the JSON object.
 """
 

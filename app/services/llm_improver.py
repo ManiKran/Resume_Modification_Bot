@@ -5,7 +5,7 @@ import json
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 IMPROVE_PROMPT = """
-You are a resume refinement expert.
+You are a resume refinement expert with strict ATS optimization AND strict historical accuracy.
 
 ==============================
 MANDATORY RULES
@@ -14,6 +14,7 @@ MANDATORY RULES
 - In EXPERIENCE:
     * DO NOT change job titles.
     * DO NOT change company names.
+    * DO NOT change locations.
     * DO NOT change dates.
     * ONLY rewrite bullet points.
 
@@ -21,45 +22,67 @@ MANDATORY RULES
 SUMMARY RULES
 ==============================
 - Summary MUST be strictly less than 800 characters.
-- Summary MUST incorporate missing keywords from analysis, naturally and truthfully.
+- Summary MUST incorporate missing_keywords from ATS analysis naturally and truthfully.
+- Summary MUST reflect the strengths recommended in ATS analysis.
 
 ==============================
 BULLET COUNT RULES
 ==============================
-Resume has structured experience.
 Enforce EXACT bullet counts:
+- Experience #1 → 7 bullets
+- Experience #2 → 6 bullets
+- Experience #3 → 4 bullets
 
-- Experience #1 → EXACTLY 7 bullets.
-- Experience #2 → EXACTLY 6 bullets.
-- Experience #3 → EXACTLY 4 bullets.
+==============================
+TIME-PERIOD ACCURACY (CRITICAL)
+==============================
+For EACH job:
 
-If resume has fewer jobs, apply rules only to existing ones.
+1. Read the date range from the "dates" field.
+2. Only include tools/technologies/frameworks that existed and were publicly available during THAT date range.
+3. Examples of OFF-LIMITS technologies before their release dates:
+   - GPT-4 → 2023+
+   - GPT-3 → 2020+
+   - LangChain → 2023+
+   - Azure OpenAI → 2021+
+   - Vertex AI → 2021+
+   - Amazon Bedrock → 2023+
+   - HuggingFace Transformers → 2018+
+   - AWS Lambda → 2015+
+   - Cloud Run → 2019+
+4. If JD requires a modern tool that DID NOT exist during that experience:
+   → DO NOT add it.
+   Instead add a historically realistic alternative (e.g., “custom NLP pipeline in Python”)
 
 ==============================
 ATS OPTIMIZATION RULES
 ==============================
 You MUST use ALL of the following from ATS analysis:
 
-1) missing_keywords → MUST appear in summary or bullets or skills  
-2) weak_areas → MUST be improved through bullet rewriting  
-3) recommendations → MUST be implemented as improvements  
+1. missing_keywords  
+   → MUST appear in summary or bullets or skills
 
-Do NOT fabricate fake experience, but you may highlight skills, tools, technologies, or achievements if truthful.
+2. weak_areas  
+   → MUST be improved explicitly through rewritten bullets
+
+3. recommendations  
+   → MUST be implemented in the rewrite
+
+Do NOT fabricate experience, but you may highlight truthful missing competencies.
 
 ==============================
 SKILLS RULES
 ==============================
-- SKILLS MUST ALWAYS be a JSON OBJECT (dictionary).
-- Keys = categories (e.g., “Technical Skills”, “AI/ML Skills”, “Tools”)
-- Values = lists of strings (skills).
-- Missing keywords MUST be included if they are skills or tools.
+- SKILLS MUST ALWAYS BE A JSON OBJECT.
+- Keys = category names
+- Values = lists of strings.
+- Include missing_keywords if they are skills/tools.
 
 ==============================
-OUTPUT
+OUTPUT FORMAT
 ==============================
-Return ONLY valid JSON.
-No comments, no explanations.
-Follow this structure:
+Return ONLY valid JSON. NO text outside the JSON.
+Format:
 
 {
   "summary": "",
@@ -68,21 +91,12 @@ Follow this structure:
 }
 """
 
-
 def safe_json_parse(text: str):
-    """
-    Safely parse JSON returned by the LLM.
-    Attempts:
-    1. direct json.loads
-    2. remove ```json wrappers
-    3. fallback minimal fixes
-    """
     try:
         return json.loads(text)
     except:
         pass
 
-    # Remove code block wrappers
     if "```" in text:
         cleaned = text.replace("```json", "").replace("```", "").strip()
         try:
@@ -90,56 +104,37 @@ def safe_json_parse(text: str):
         except:
             pass
 
-    # LAST RESORT FIXES
     cleaned = text.replace("\n", " ").replace("\t", " ")
-
     try:
         return json.loads(cleaned)
     except:
         raise ValueError(f"LLM returned invalid JSON:\n{text}")
 
-
 def ensure_skills_dict(skills):
-    """Guarantee skills are a dictionary."""
     if isinstance(skills, dict):
         return skills
-
-    # If it's a list → convert to a fallback dict
     if isinstance(skills, list):
         return {"General Skills": skills}
-
-    # If it's something else → fallback
     return {"General Skills": ["Problem Solving", "Communication"]}
 
-
 def enforce_bullet_rules(experience):
-    """Fix bullet counts to match (7, 6, 4)."""
     required = [7, 6, 4]
-
     for i, job in enumerate(experience):
         if i >= len(required):
-            break  # only enforce first 3 jobs
-
+            break
         need = required[i]
         bullets = job.get("bullets", [])
-
-        # Expand / trim bullets to required length
         if len(bullets) < need:
             bullets += ["• Additional impact bullet needed"] * (need - len(bullets))
         elif len(bullets) > need:
             bullets = bullets[:need]
-
         job["bullets"] = bullets
-
     return experience
 
-
 def enforce_summary_length(summary):
-    """Ensure summary is < 800 chars."""
     if len(summary) <= 800:
         return summary
     return summary[:797] + "..."
-
 
 def improve_resume(sections, analysis, jd, experience_locks):
     resp = client.chat.completions.create(
@@ -159,16 +154,10 @@ Protected Experience Info: {experience_locks}
     )
 
     raw_output = resp.choices[0].message.content
-
     parsed = safe_json_parse(raw_output)
 
-    # --- Enforce skill dictionary ---
     parsed["skills"] = ensure_skills_dict(parsed.get("skills"))
-
-    # --- Enforce bullet count rules ---
     parsed["experience"] = enforce_bullet_rules(parsed.get("experience", []))
-
-    # --- Enforce summary length ---
     parsed["summary"] = enforce_summary_length(parsed.get("summary", ""))
 
     return parsed
