@@ -200,7 +200,7 @@ def add_experience(doc, experience_list):
     for job in experience_list:
         p = doc.add_paragraph()
         p_format = p.paragraph_format
-        p_format.space_after = Pt(2)
+        p_format.space_after = Pt(0)
 
         # Title + Company
         p.add_run(f"{job.get('title', '')}, {job.get('company', '')}").bold = True
@@ -264,7 +264,7 @@ def add_skills(doc, skills_dict):
         r1.bold = True
 
         r2 = p.add_run(", ".join(skills))
-        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.space_after = Pt(0)
 
     return doc
 
